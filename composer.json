@@ -1,0 +1,44 @@
+{
+    "name": "phpcp/phpcp",
+    "description": "PHP CPanel is a PHP application to interact with CPanel Git repositories",
+    "type": "library",
+    "license": "MIT",
+    "bin": [
+        "phpcp"
+    ],
+    "autoload": {
+        "psr-4": {
+            "PhpCP\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joao Silva",
+            "email": "geral@joaocsilva.com"
+        }
+    ],
+    "prefer-stable": true,
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.4 || ^8",
+        "ext-curl": "*",
+        "symfony/console": "^5",
+        "symfony/process": "^5",
+        "knplabs/github-api": "^3.11",
+        "symfony/http-client": "^5",
+        "nyholm/psr7": "^1.6",
+        "symfony/config": "^5",
+        "symfony/yaml": "^5",
+        "grasmash/expander": "^2.0 || ^3.0",
+        "adbario/php-dot-notation": "^3.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require-dev": {
+        "slevomat/coding-standard": "^8.11"
+    }
+}

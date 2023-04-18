@@ -1,0 +1,8 @@
+phpcp:
+  github:
+    token: ${env.PHPCP_GITHUB_TOKEN}
+    user: ${env.PHPCP_GITHUB_USER}
+    repo: ${env.PHPCP_GITHUB_REPO}
+  cpanel:
+    token: ${env.PHPCP_CPANEL_TOKEN}
+    url: ${env.PHPCP_CPANEL_URL}

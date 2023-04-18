@@ -1,0 +1,8 @@
+/vendor/
+/.idea/
+.DS_Store
+
+/docker-compose.*.yml
+/composer.lock
+/phpcp.yml
+/resources

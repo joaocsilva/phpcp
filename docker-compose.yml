@@ -1,0 +1,25 @@
+version: '2'
+services:
+  web:
+    image: fpfis/httpd-php:8.1-dev
+    working_dir: /var/www/html
+    ports:
+      - "8080"
+    volumes:
+      - ${PWD}:/var/www/html
+#      - nfsmount:/var/www/html # for macos
+    environment:
+      DOCUMENT_ROOT: /var/www/html
+      PHPCP_GITHUB_TOKEN:
+      PHPCP_CPANEL_TOKEN:
+      PHPCP_CPANEL_URL:
+      PHP_IDE_CONFIG: "serverName=Docker"
+
+# for macos
+#volumes:
+#  nfsmount:
+#    driver: local
+#    driver_opts:
+#      type: nfs
+#      o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
+#      device: ":${PWD}/"
