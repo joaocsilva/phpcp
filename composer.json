@@ -30,7 +30,8 @@
         "symfony/config": "^5",
         "symfony/yaml": "^5",
         "grasmash/expander": "^2.0 || ^3.0",
-        "adbario/php-dot-notation": "^3.3"
+        "adbario/php-dot-notation": "^3.3",
+        "ext-json": "*"
     },
     "config": {
         "allow-plugins": {
