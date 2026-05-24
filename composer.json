@@ -22,16 +22,16 @@
     "require": {
         "php": "^7.4 || ^8",
         "ext-curl": "*",
-        "symfony/console": "^5",
-        "symfony/process": "^5",
-        "knplabs/github-api": "^3.11",
-        "symfony/http-client": "^5",
-        "nyholm/psr7": "^1.6",
-        "symfony/config": "^5",
-        "symfony/yaml": "^5",
-        "grasmash/expander": "^2.0 || ^3.0",
+        "ext-json": "*",
         "adbario/php-dot-notation": "^3.3",
-        "ext-json": "*"
+        "grasmash/expander": "^2.0 || ^3.0",
+        "nyholm/psr7": "^1.6",
+        "knplabs/github-api": "^3.11",
+        "symfony/config": "^5 || ^6 || ^7",
+        "symfony/console": "^5 || ^6 || ^7",
+        "symfony/http-client": "^5 || ^6 || ^7",
+        "symfony/process": "^5 || ^6 || ^7",
+        "symfony/yaml": "^5 || ^6 || ^7"
     },
     "config": {
         "allow-plugins": {

@@ -87,6 +87,8 @@ class RepoListCommand extends AbstractCpanelCommand {
         new TableSeparator(),
       ];
       foreach ($result as $repo) {
+        $hasDeployment = !empty($repo['last_deployment']);
+        $hasLastUpdate = !empty($repo['last_update']);
         $row = [
           new TableSeparator(),
           $repo['name'],
@@ -96,14 +98,14 @@ class RepoListCommand extends AbstractCpanelCommand {
           $repo['deployable'],
           $branches[$repo['branch']] ?? '[use --git to check]',
           '',
-          $repo['last_update']['identifier'],
-          $this->date($repo['last_update']['date']),
-          trim($repo['last_update']['message']),
+          $hasLastUpdate ? $repo['last_update']['identifier'] : '-',
+          $hasLastUpdate ? $this->date($repo['last_update']['date']) : '-',
+          $hasLastUpdate ? trim($repo['last_update']['message']) : '-',
           '',
-          $repo['last_deployment']['repository_state']['identifier'],
-          $this->date($repo['last_deployment']['timestamps']['active']),
-          $this->date($repo['last_deployment']['timestamps']['succeeded']),
-          $repo['last_deployment']['log_path'],
+          $hasDeployment ? $repo['last_deployment']['repository_state']['identifier'] : '-',
+          $hasDeployment ? $this->date($repo['last_deployment']['timestamps']['active']) : '-',
+          $hasDeployment ? $this->date($repo['last_deployment']['timestamps']['succeeded']) : '-',
+          $hasDeployment ? $repo['last_deployment']['log_path'] : '-',
           new TableSeparator(),
         ];
 

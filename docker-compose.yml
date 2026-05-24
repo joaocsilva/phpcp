@@ -1,10 +1,9 @@
-version: '2'
 services:
   web:
     image: fpfis/httpd-php:8.1-dev
     working_dir: /var/www/html
     ports:
-      - "8080"
+      - "8008"
     volumes:
       - ${PWD}:/var/www/html
 #      - nfsmount:/var/www/html # for macos
