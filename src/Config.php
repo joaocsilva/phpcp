@@ -65,7 +65,7 @@ class Config extends Dot {
     $processor = new Processor();
     // Validate only phpcp configurations.
     $config = ['phpcp' => $this->get('phpcp')];
-    $processor->processConfiguration((new ConfigTreeBuilder()), $config);
+    $processor->processConfiguration(new ConfigTreeBuilder(), $config);
     return $this;
   }
 
