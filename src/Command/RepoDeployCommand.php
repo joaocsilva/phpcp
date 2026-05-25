@@ -9,6 +9,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Run a deployment.
+ *
+ * @see https://api.docs.cpanel.net/specifications/cpanel.openapi/deployment-settings
+ */
 class RepoDeployCommand extends AbstractCpanelCommand {
 
   /**
@@ -20,9 +25,9 @@ class RepoDeployCommand extends AbstractCpanelCommand {
       ->setDescription('Deploy a CPanel repository')
       ->setAliases(['deploy'])
       ->addArgument(
-        'branch',
+        'repo',
         InputArgument::REQUIRED,
-        'The branch identifies the repository to deploy'
+        'Filter a specific repository.'
       );
     parent::configure();
   }
@@ -32,13 +37,17 @@ class RepoDeployCommand extends AbstractCpanelCommand {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
-    $branch = $input->getArgument('branch');
-    $results = $this->cpanelGetRepositories();
-    $branches = $this->cpanelGetBranches($results, $branch);
+    $repo = $input->getArgument('repo');
+    $results = $this->cpanelGetRepositories($repo);
+    if (empty($results)) {
+      $io->error("Could not find repository: $repo");
+      return Command::FAILURE;
+    }
+    $repository = $results[0];
 
-    $io->writeln("Deploying branch $branch with repository root $branches[$branch]");
+    $io->writeln("Using repo $repo with repository root {$repository['repository_root']}");
     if ($io->confirm('Do you want to proceed?')) {
-      $root = urlencode($branches[$branch]);
+      $root = urlencode($repository['repository_root']);
       $url = "/execute/VersionControlDeployment/create?repository_root=$root";
       $this->cpanelApiCall($url);
       $io->success('OK');

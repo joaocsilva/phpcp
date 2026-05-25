@@ -12,6 +12,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * List repositories.
+ *
+ * @see https://api.docs.cpanel.net/specifications/cpanel.openapi/repository-management/versioncontrol::retrieve
+ */
 class RepoListCommand extends AbstractCpanelCommand {
 
   use GitHubCommandTrait;
@@ -30,6 +35,12 @@ class RepoListCommand extends AbstractCpanelCommand {
         NULL,
         InputOption::VALUE_NONE,
         'Check for branch HEAD commit hash in GitHub.'
+      )
+      ->addOption(
+        'repo',
+        NULL,
+        InputOption::VALUE_REQUIRED,
+        'Filter a specific repository.'
       )
       ->githubAddOptions()
       ->addUsage('--git');
@@ -63,8 +74,10 @@ class RepoListCommand extends AbstractCpanelCommand {
     if ($git = !empty($input->getOption('git'))) {
       $this->githubValidate();
     }
-
-    $result = $this->cpanelGetRepositories();
+    $repo = $input->hasOption('repo') && !empty($input->getOption('repo'))
+      ? $input->getOption('repo')
+      : null;
+    $result = $this->cpanelGetRepositories($repo);
     if (!empty($result)) {
       $branches = $git ? $this->getGithubBranches() : [];
       $header = [
