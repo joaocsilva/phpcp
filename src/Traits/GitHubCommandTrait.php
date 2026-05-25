@@ -68,10 +68,9 @@ trait GitHubCommandTrait {
    */
   protected function githubInitialize(InputInterface $input, OutputInterface $output): void {
     $config = $this->getConfig();
-    $this->token = $config->get('phpcp.github.token');
-    $this->username = $config->get('phpcp.github.user');
-    $this->repository = $config->get('phpcp.github.repo');
-
+    $this->token = $config->get('phpcp.github.token') ?? '';
+    $this->username = $config->get('phpcp.github.user') ?? '';
+    $this->repository = $config->get('phpcp.github.repo') ?? '';
     if ($input->hasOption('github-token') && $input->getOption('github-token')) {
       $this->token = $input->getOption('github-token');
     }

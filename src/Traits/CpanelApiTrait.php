@@ -20,37 +20,17 @@ trait CpanelApiTrait {
   /**
    * Returns the CPanel repositories.
    */
-  public function cpanelGetRepositories(): array {
-    return $this->cpanelApiCall('/execute/VersionControl/retrieve');
-  }
-
-  /**
-   * Get available branches.
-   *
-   * @param array $repositories
-   *   The repositories to use as source data,
-   *   if not given the api will be called.
-   * @param string $branch
-   *   If given, the branch will be checked if exists in the repo.
-   *
-   * @return array
-   *   The existing branches.
-   *
-   * @throws \Symfony\Component\Console\Exception\RuntimeException If given branch do not exist.
-   */
-  public function cpanelGetBranches(array $repositories = [], string $branch = ''): array {
-    if (empty($repositories)) {
-      $repositories = $this->cpanelGetRepositories();
+  public function cpanelGetRepositories(string $repo = null): array {
+    $repositories = $this->cpanelApiCall('/execute/VersionControl/retrieve');
+    if (!empty($repo)) {
+      foreach ($repositories as $repository) {
+        if ($repo && $repository['name'] === $repo) {
+          return [$repository];
+        }
+      }
+      return [];
     }
-    $branches = [];
-    foreach ($repositories as $result) {
-      $branches[$result['branch']] = $result['repository_root'];
-    }
-    if (!empty($branch) && !isset($branches[$branch])) {
-      $display = implode(', ', array_keys($branches));
-      throw new RuntimeException("You must specify a valid branch, one of: $display");
-    }
-    return $branches;
+    return $repositories;
   }
 
   /**

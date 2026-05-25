@@ -10,6 +10,8 @@ A website hosted in a CPanel server using the Git Version Control,
 this allows you to perform the manual operations for 'Pull or Deploy' in the
 CPanel Git repositories interface.
 
+CPanel developer: [portal](https://api.docs.cpanel.net/specifications/cpanel.openapi/repository-management).
+
 ## Features
 
 * [List existing repositories information](#command-repolist)

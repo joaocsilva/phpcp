@@ -9,6 +9,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Pull a repository
+ *
+ * @see https://api.docs.cpanel.net/specifications/cpanel.openapi/repository-management/versioncontrol::update
+ */
 class RepoPullCommand extends AbstractCpanelCommand {
 
   /**
@@ -20,9 +25,9 @@ class RepoPullCommand extends AbstractCpanelCommand {
       ->setDescription('Pull a CPanel repository')
       ->setAliases(['pull'])
       ->addArgument(
-        'branch',
+        'repo',
         InputArgument::REQUIRED,
-        'The branch identifies the repository to pull.'
+        'Filter a specific repository.'
       )
       ->setHelp('This command triggers the CPanel action - Update from Remote for a repository');
     parent::configure();
@@ -33,14 +38,18 @@ class RepoPullCommand extends AbstractCpanelCommand {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
-    $branch = $input->getArgument('branch');
-    $results = $this->cpanelGetRepositories();
-    $branches = $this->cpanelGetBranches($results, $branch);
+    $repo = $input->getArgument('repo');
+    $results = $this->cpanelGetRepositories($repo);
+    if (empty($results)) {
+      $io->error("Could not find repository: $repo");
+      return Command::FAILURE;
+    }
+    $repository = $results[0];
 
-    $io->writeln("Using branch $branch with repository root $branches[$branch]");
+    $io->writeln("Using repo $repo with repository root {$repository['repository_root']}");
     if ($io->confirm('Do you want to proceed?')) {
-      $root = urlencode($branches[$branch]);
-      $url = "/execute/VersionControl/update?repository_root=$root&branch=$branch";
+      $root = urlencode($repository['repository_root']);
+      $url = "/execute/VersionControl/update?repository_root=$root&branch={$repository['branch']}";
       $this->cpanelApiCall($url);
       $io->success('OK');
     }
