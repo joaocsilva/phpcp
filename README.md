@@ -121,9 +121,10 @@ phpcp:
     url: '${env.PHPCP_CPANEL_URL}'
 ```
 
-> **Warning**
-> The command `config` prints the values in plain text, including tokens. Do not
-> run it in a public CI log.
+Secret values (tokens) are masked as `********`. Unresolved placeholders such
+as `${env.PHPCP_CPANEL_TOKEN}` are shown as they are, they help to find a
+missing environment variable. Use the option `--show-secrets` to print the real
+values.
 
 ### Using environment variables
 
@@ -200,6 +201,12 @@ View a specific configuration.
 
 ```shell
 $ php vendor/bin/phpcp config phpcp.cpanel.url
+```
+
+Print the real token instead of the mask.
+
+```shell
+$ php vendor/bin/phpcp config phpcp.cpanel.token --show-secrets
 ```
 
 ### Command `help`

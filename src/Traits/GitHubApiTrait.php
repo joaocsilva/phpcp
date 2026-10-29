@@ -4,6 +4,7 @@ namespace PhpCP\Traits;
 
 use Github\AuthMethod;
 use Github\Client;
+use Github\ResultPager;
 use Symfony\Component\HttpClient\HttplugClient;
 
 trait GitHubApiTrait {
@@ -30,7 +31,10 @@ trait GitHubApiTrait {
    *   Keyed by name and sha as value.
    */
   public function getGithubBranches(): array {
-    $data = $this->githubClient()->repo()->branches($this->username, $this->repository);
+    $client = $this->githubClient();
+    // The API returns 30 items per page by default, fetch all the pages.
+    $paginator = new ResultPager($client, 100);
+    $data = $paginator->fetchAll($client->repo(), 'branches', [$this->username, $this->repository]);
     $branches = [];
     foreach ($data as $branch) {
       $branches[$branch['name']] = $branch['commit']['sha'];

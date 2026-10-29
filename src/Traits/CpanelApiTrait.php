@@ -70,17 +70,6 @@ trait CpanelApiTrait {
   }
 
   /**
-   * Returns the CPanel API base url, without any session segment.
-   *
-   * API token authentication does not use the temporary /cpsessXXXXXXXXXX
-   * segment, it is removed if present in the configured url.
-   */
-  protected function cpanelBaseUrl(): string {
-    $url = preg_replace('#/cpsess[^/]*#', '', $this->baseUrl);
-    return rtrim($url, '/');
-  }
-
-  /**
    * Execute a CPanel API call using an API token.
    *
    * @param string $endpoint
@@ -115,7 +104,8 @@ trait CpanelApiTrait {
 
     if (in_array($status, [401, 403], TRUE)) {
       throw new RuntimeException(sprintf(
-        'CPanel rejected the credentials (HTTP %d). Check phpcp.cpanel.user and phpcp.cpanel.token, the token must be an API token (Security > Manage API Tokens), not the account password.',
+        'CPanel rejected the credentials (HTTP %d). Check phpcp.cpanel.user and phpcp.cpanel.token, the token must'
+         . ' be an API token (Security > Manage API Tokens), not the account password.',
         $status
       ));
     }
@@ -136,6 +126,17 @@ trait CpanelApiTrait {
       throw new RuntimeException('CPanel API call failed without an error message.');
     }
     return $json['data'] ?? [];
+  }
+
+  /**
+   * Returns the CPanel API base url, without any session segment.
+   *
+   * API token authentication does not use the temporary /cpsessXXXXXXXXXX
+   * segment, it is removed if present in the configured url.
+   */
+  protected function cpanelBaseUrl(): string {
+    $url = preg_replace('#/cpsess[^/]*#', '', $this->baseUrl);
+    return rtrim($url, '/');
   }
 
 }
