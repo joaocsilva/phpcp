@@ -5,20 +5,13 @@ services:
     ports:
       - "8008"
     volumes:
-      - ${PWD}:/var/www/html
-#      - nfsmount:/var/www/html # for macos
+      - .:/var/www/html
     environment:
       DOCUMENT_ROOT: /var/www/html
       PHPCP_GITHUB_TOKEN:
+      PHPCP_GITHUB_USER:
+      PHPCP_GITHUB_REPO:
+      PHPCP_CPANEL_USER:
       PHPCP_CPANEL_TOKEN:
       PHPCP_CPANEL_URL:
       PHP_IDE_CONFIG: "serverName=Docker"
-
-# for macos
-#volumes:
-#  nfsmount:
-#    driver: local
-#    driver_opts:
-#      type: nfs
-#      o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
-#      device: ":${PWD}/"

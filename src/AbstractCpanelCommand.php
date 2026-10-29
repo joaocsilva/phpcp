@@ -24,6 +24,9 @@ abstract class AbstractCpanelCommand extends Command {
    */
   public function cpanelValidate(): void {
     $missing = [];
+    if (empty($this->authUser) || $this->authUser === '${env.PHPCP_CPANEL_USER}') {
+      $missing[] = 'phpcp.cpanel.user';
+    }
     if (empty($this->authToken) || $this->authToken === '${env.PHPCP_CPANEL_TOKEN}') {
       $missing[] = 'phpcp.cpanel.token';
     }
@@ -44,9 +47,13 @@ abstract class AbstractCpanelCommand extends Command {
    */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     $config = $this->getConfig();
-    $this->authToken = $config->get('phpcp.cpanel.token');
-    $this->baseUrl = $config->get('phpcp.cpanel.url');
+    $this->authUser = $config->get('phpcp.cpanel.user') ?? '';
+    $this->authToken = $config->get('phpcp.cpanel.token') ?? '';
+    $this->baseUrl = $config->get('phpcp.cpanel.url') ?? '';
 
+    if ($input->hasOption('cp-user') && $input->getOption('cp-user')) {
+      $this->authUser = $input->getOption('cp-user');
+    }
     if ($input->hasOption('cp-token') && $input->getOption('cp-token')) {
       $this->authToken = $input->getOption('cp-token');
     }
@@ -63,18 +70,24 @@ abstract class AbstractCpanelCommand extends Command {
   protected function configure(): void {
     $this
       ->addOption(
+        'cp-user',
+        NULL,
+        InputOption::VALUE_REQUIRED,
+        'The CPanel account username'
+      )
+      ->addOption(
         'cp-token',
         NULL,
         InputOption::VALUE_REQUIRED,
-        'The CPanel auth token, usually a base64 encode'
+        'The CPanel API token (Security > Manage API Tokens)'
       )
       ->addOption(
         'cp-base-url',
         NULL,
         InputOption::VALUE_REQUIRED,
-        'The CPanel base url, i.e: https://cpanelXXX.dnscpanel.com:XXXX/cpsessXXXXXXXXXX'
+        'The CPanel base url, i.e: https://cpanelXXX.dnscpanel.com:2083'
       )
-      ->addUsage('--cp-token="aBcdef" --cp-base-url="https://cpanelXXX.dnscpanel.com:XXXX/cpsessXXXXXXXXXX"');
+      ->addUsage('--cp-user="user" --cp-token="aBcdef" --cp-base-url="https://cpanelXXX.dnscpanel.com:2083"');
   }
 
   /**
@@ -83,11 +96,16 @@ abstract class AbstractCpanelCommand extends Command {
    * Ask for auth and base url if missing.
    */
   protected function interact(InputInterface $input, OutputInterface $output): void {
-    if (empty($this->authToken)) {
-      $question = new Question('Provide the CPanel auth token (base64 encode): ', '');
+    if (empty($this->authUser) || $this->authUser === '${env.PHPCP_CPANEL_USER}') {
+      $question = new Question('Provide the CPanel username: ', '');
+      $this->authUser = $this->getHelper('question')->ask($input, $output, $question);
+    }
+    if (empty($this->authToken) || $this->authToken === '${env.PHPCP_CPANEL_TOKEN}') {
+      $question = new Question('Provide the CPanel API token: ', '');
+      $question->setHidden(TRUE);
       $this->authToken = $this->getHelper('question')->ask($input, $output, $question);
     }
-    if (empty($this->baseUrl)) {
+    if (empty($this->baseUrl) || $this->baseUrl === '${env.PHPCP_CPANEL_URL}') {
       $question = new Question('Provide the CPanel base url: ', '');
       $this->baseUrl = $this->getHelper('question')->ask($input, $output, $question);
     }

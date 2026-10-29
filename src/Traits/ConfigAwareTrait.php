@@ -15,7 +15,7 @@ trait ConfigAwareTrait {
    * Returns the current configuration.
    */
   protected function getConfig(): Config {
-    if (!isset($config)) {
+    if (!isset($this->config)) {
       $this->config = new Config();
     }
     return $this->config;

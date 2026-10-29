@@ -48,9 +48,10 @@ class RepoPullCommand extends AbstractCpanelCommand {
 
     $io->writeln("Using repo $repo with repository root {$repository['repository_root']}");
     if ($io->confirm('Do you want to proceed?')) {
-      $root = urlencode($repository['repository_root']);
-      $url = "/execute/VersionControl/update?repository_root=$root&branch={$repository['branch']}";
-      $this->cpanelApiCall($url);
+      $this->cpanelApiCall('/execute/VersionControl/update', [
+        'repository_root' => $repository['repository_root'],
+        'branch' => $repository['branch'],
+      ]);
       $io->success('OK');
     }
     return Command::SUCCESS;

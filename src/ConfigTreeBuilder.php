@@ -23,6 +23,7 @@ class ConfigTreeBuilder implements ConfigurationInterface {
       ->end()
       ->arrayNode('cpanel')
         ->children()
+        ->scalarNode('user')->isRequired()->end()
         ->scalarNode('token')->isRequired()->end()
         ->scalarNode('url')->isRequired()->end()
         ->end()

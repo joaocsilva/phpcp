@@ -21,7 +21,6 @@
     "minimum-stability": "stable",
     "require": {
         "php": "^8.2",
-        "ext-curl": "*",
         "ext-json": "*",
         "adbario/php-dot-notation": "^3.3",
         "grasmash/expander": "^2.0 || ^3.0",
@@ -30,7 +29,6 @@
         "symfony/config": "^7",
         "symfony/console": "^7",
         "symfony/http-client": "^7",
-        "symfony/process": "^7",
         "symfony/yaml": "^7"
     },
     "config": {

@@ -47,9 +47,9 @@ class RepoDeployCommand extends AbstractCpanelCommand {
 
     $io->writeln("Using repo $repo with repository root {$repository['repository_root']}");
     if ($io->confirm('Do you want to proceed?')) {
-      $root = urlencode($repository['repository_root']);
-      $url = "/execute/VersionControlDeployment/create?repository_root=$root";
-      $this->cpanelApiCall($url);
+      $this->cpanelApiCall('/execute/VersionControlDeployment/create', [
+        'repository_root' => $repository['repository_root'],
+      ]);
       $io->success('OK');
     }
     return Command::SUCCESS;

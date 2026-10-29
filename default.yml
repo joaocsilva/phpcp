@@ -4,5 +4,6 @@ phpcp:
     user: ${env.PHPCP_GITHUB_USER}
     repo: ${env.PHPCP_GITHUB_REPO}
   cpanel:
+    user: ${env.PHPCP_CPANEL_USER}
     token: ${env.PHPCP_CPANEL_TOKEN}
     url: ${env.PHPCP_CPANEL_URL}
