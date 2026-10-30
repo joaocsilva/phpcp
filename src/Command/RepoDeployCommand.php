@@ -2,19 +2,14 @@
 
 namespace PhpCP\Command;
 
-use PhpCP\AbstractCpanelCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use PhpCP\AbstractRepoActionCommand;
 
 /**
  * Run a deployment.
  *
  * @see https://api.docs.cpanel.net/specifications/cpanel.openapi/deployment-settings
  */
-class RepoDeployCommand extends AbstractCpanelCommand {
+class RepoDeployCommand extends AbstractRepoActionCommand {
 
   /**
    * {@inheritdoc}
@@ -24,35 +19,33 @@ class RepoDeployCommand extends AbstractCpanelCommand {
       ->setName('repo:deploy')
       ->setDescription('Deploy a CPanel repository')
       ->setAliases(['deploy'])
-      ->addArgument(
-        'repo',
-        InputArgument::REQUIRED,
-        'Filter a specific repository.'
-      );
+      ->addUsage('my-site')
+      ->addUsage('my-site --yes')
+      ->setHelp('This command triggers the CPanel action - Deploy HEAD Commit for a repository');
     parent::configure();
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $io = new SymfonyStyle($input, $output);
-    $repo = $input->getArgument('repo');
-    $results = $this->cpanelGetRepositories($repo);
-    if (empty($results)) {
-      $io->error("Could not find repository: $repo");
-      return Command::FAILURE;
+  protected function repoValidate(array $repository): ?string {
+    if (empty($repository['deployable'])) {
+      return sprintf(
+        'The repository %s is not deployable. CPanel requires a .cpanel.yml file in the repository root'
+        . ' and a clean working tree.',
+        $repository['name'] ?? ''
+      );
     }
-    $repository = $results[0];
+    return NULL;
+  }
 
-    $io->writeln("Using repo $repo with repository root {$repository['repository_root']}");
-    if ($io->confirm('Do you want to proceed?')) {
-      $this->cpanelApiCall('/execute/VersionControlDeployment/create', [
-        'repository_root' => $repository['repository_root'],
-      ]);
-      $io->success('OK');
-    }
-    return Command::SUCCESS;
+  /**
+   * {@inheritdoc}
+   */
+  protected function repoAction(array $repository): void {
+    $this->cpanelApiCall('/execute/VersionControlDeployment/create', [
+      'repository_root' => $repository['repository_root'],
+    ]);
   }
 
 }

@@ -273,6 +273,16 @@ The command has a required argument with the repository name, as shown in
 $ php vendor/bin/phpcp repo:pull my-site
 ```
 
+The command asks for confirmation before running. Use the option `--yes`
+(`-y`) to skip the question, i.e: in a script.
+
+```shell
+$ php vendor/bin/phpcp repo:pull my-site --yes
+```
+
+The exit code is `0` on success and `1` when the repository is not found or the
+confirmation is declined, so it can be used in pipelines.
+
 ### Command `repo:deploy`
 
 Perform the action to deploy a repository in the CPanel interface
@@ -284,6 +294,18 @@ The command has a required argument with the repository name, as shown in
 
 ```shell
 $ php vendor/bin/phpcp repo:deploy my-site
+```
+
+The repository must be deployable, the command stops with an error otherwise.
+CPanel requires a `.cpanel.yml` file in the repository root and a clean working
+tree, `repo:list` shows the value in the column `Deployable`.
+
+Same as `repo:pull`, use `--yes` to skip the confirmation. The exit code is `0`
+on success and `1` when the repository is not found, is not deployable or the
+confirmation is declined.
+
+```shell
+$ php vendor/bin/phpcp repo:deploy my-site --yes
 ```
 
 ### Command `file:download`
@@ -313,6 +335,7 @@ $ php vendor/bin/phpcp file:download /home/user composer.json --output=remote-co
 | `CPanel rejected the credentials (HTTP 401)`               | Wrong username or token, or the token was revoked or expired. Create a new one.                            |
 | `Missing configuration key(s): phpcp.cpanel.user`          | `PHPCP_CPANEL_USER` is not set. This key is new in 0.3.0.                                                  |
 | `Could not find repository`                                | The argument is the repository name shown by `repo:list`, not the branch name.                             |
+| `The repository ... is not deployable`                     | Add a `.cpanel.yml` file to the repository root and make sure the working tree is clean, then pull again.  |
 
 ## Local development
 
@@ -352,7 +375,7 @@ $ docker compose exec web php phpcp repo:list
 ```
 
 Code style is checked with PHP_CodeSniffer.
-
+qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
 ```shell
 $ docker compose exec web ./vendor/bin/phpcs
 ```
