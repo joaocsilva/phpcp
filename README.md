@@ -331,6 +331,67 @@ Download the composer.json file to a file named remote-composer.json.
 $ php vendor/bin/phpcp file:download /home/user composer.json --output=remote-composer.json
 ```
 
+## Usage in a pipeline
+
+PHPCP can be used only to trigger the CPanel sync from a pipeline, the project
+that is deployed does not need to require it. Install the package in a separate
+directory when the pipeline runs, so the `composer.json` of the project is not
+changed and its dependencies do not conflict with the ones from PHPCP.
+
+The credentials are read from the environment variables
+`PHPCP_CPANEL_USER`, `PHPCP_CPANEL_TOKEN` and `PHPCP_CPANEL_URL`, there is no need
+to pass them in the command options. Store them as secrets of the pipeline.
+
+Example with a GitHub Actions workflow:
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  cpanel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: CPanel
+        env:
+          PHPCP_CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          PHPCP_CPANEL_TOKEN: ${{ secrets.CPANEL_TOKEN }}
+          PHPCP_CPANEL_URL: ${{ secrets.CPANEL_BASE_URL }}
+        run: |
+          mkdir ~/phpcp && cd ~/phpcp
+          composer require phpcp/phpcp:^0.3
+          # Fail early if the repository does not exist.
+          php vendor/bin/phpcp repo:list --repo my-site --no-interaction
+          php vendor/bin/phpcp repo:pull my-site --yes
+          # Give CPanel time to update the repository before deploying.
+          sleep 10
+          php vendor/bin/phpcp repo:deploy my-site --yes
+```
+
+The same commands work in any CI, the commands only need PHP, composer and the
+three environment variables.
+
+Notes:
+
+- `^0.3` accepts the patch releases of `0.3`. Before 1.0.0 a minor version can
+  have breaking changes, see the [changelog](CHANGELOG.md).
+- The options `--cp-user`, `--cp-token` and `--cp-base-url` also work, but a
+  value in a command line can be visible in the process list of the runner.
+- `repo:pull` and `repo:deploy` exit with `1` when the repository is not found,
+  and `repo:deploy` also when it is not deployable, the pipeline step fails.
+- Use `--yes` or `--no-interaction` to avoid the confirmation question, which
+  would wait forever in a pipeline.
+
 ## Troubleshooting
 
 | Symptom                                                    | Cause and fix                                                                                              |
