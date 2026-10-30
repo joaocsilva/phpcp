@@ -11,6 +11,11 @@
             "PhpCP\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpCP\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Joao Silva",
@@ -38,6 +43,11 @@
         }
     },
     "require-dev": {
-        "slevomat/coding-standard": "^8.11"
+        "slevomat/coding-standard": "^8.11",
+        "phpunit/phpunit": "^11.5"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "cs": "phpcs"
     }
 }

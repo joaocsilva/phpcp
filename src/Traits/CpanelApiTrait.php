@@ -59,7 +59,10 @@ trait CpanelApiTrait {
       'dir' => $dir,
       'file' => $file,
     ]);
-    return $data['content'];
+    if (!is_array($data) || !array_key_exists('content', $data)) {
+      throw new RuntimeException("CPanel API returned no content for the file $dir/$file.");
+    }
+    return (string) $data['content'];
   }
 
   /**

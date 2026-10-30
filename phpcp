@@ -10,6 +10,7 @@ if ((!$loader = includeIfExists(__DIR__ . '/vendor/autoload.php')) && (!$loader 
   exit(1);
 }
 
+use Composer\InstalledVersions;
 use PhpCP\Command\ConfigCommand;
 use PhpCP\Command\FileDownload;
 use PhpCP\Command\RepoDeployCommand;
@@ -17,7 +18,12 @@ use PhpCP\Command\RepoListCommand;
 use PhpCP\Command\RepoPullCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('PHP CPanel cli', '0.0.1');
+// The version comes from composer, it is a branch name (i.e: dev-main) when the
+// package is not installed from a release.
+$version = class_exists(InstalledVersions::class) && InstalledVersions::isInstalled('phpcp/phpcp')
+  ? InstalledVersions::getPrettyVersion('phpcp/phpcp')
+  : NULL;
+$application = new Application('PHP CPanel cli', $version ?? 'dev');
 $application->addCommands([
   new ConfigCommand(),
   new FileDownload(),

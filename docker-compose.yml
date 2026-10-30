@@ -1,17 +1,14 @@
 services:
-  web:
-    image: fpfis/httpd-php:8.3-dev
-    working_dir: /var/www/html
-    ports:
-      - "8008"
+  phpcp:
+    image: composer:2
+    working_dir: /app
+    command: sleep infinity
     volumes:
-      - .:/var/www/html
+      - .:/app
     environment:
-      DOCUMENT_ROOT: /var/www/html
       PHPCP_GITHUB_TOKEN:
       PHPCP_GITHUB_USER:
       PHPCP_GITHUB_REPO:
       PHPCP_CPANEL_USER:
       PHPCP_CPANEL_TOKEN:
       PHPCP_CPANEL_URL:
-      PHP_IDE_CONFIG: "serverName=Docker"

@@ -311,6 +311,10 @@ $ php vendor/bin/phpcp repo:deploy my-site --yes
 ### Command `file:download`
 
 Output a file content, or write it to a file with option `--output`.
+It is meant for text files, the content is returned by the CPanel API as text.
+
+When writing to a file the command prints the number of bytes saved. It exits
+with `1` if the output directory does not exist or is not writable.
 
 The command has the required arguments `dir` and `file` to specify the directory
 where the file is and the filename.
@@ -339,7 +343,8 @@ $ php vendor/bin/phpcp file:download /home/user composer.json --output=remote-co
 
 ## Local development
 
-You can use docker to run the project locally.
+You can use docker to run the project locally, the image `composer:2` has PHP
+and composer.
 
 The docker-compose.yml file contains the environment variables needed for the
 commands.
@@ -364,21 +369,32 @@ PHPCP_CPANEL_URL: ${CPANEL_URL}
 Usage.
 
 ```shell
-# Start containers.
+# Start the container.
 $ docker compose up -d
 # Install composer dependencies.
-$ docker compose exec web composer install
+$ docker compose exec phpcp composer install
 # Check if the phpcp is running.
-$ docker compose exec web php phpcp
+$ docker compose exec phpcp php phpcp
 # List CPanel repositories.
-$ docker compose exec web php phpcp repo:list
+$ docker compose exec phpcp php phpcp repo:list
+```
+
+### Tests and code style
+
+The tests use [PHPUnit](https://phpunit.de) and mock the CPanel API, they do not
+need a CPanel account.
+
+```shell
+$ docker compose exec phpcp composer test
 ```
 
 Code style is checked with PHP_CodeSniffer.
-qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+
 ```shell
-$ docker compose exec web ./vendor/bin/phpcs
+$ docker compose exec phpcp composer cs
 ```
+
+Both run in the GitHub Actions workflow, for PHP 8.2, 8.3 and 8.4.
 
 ## License
 
