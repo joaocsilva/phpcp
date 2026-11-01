@@ -11,6 +11,10 @@ use Symfony\Component\HttpClient\Response\MockResponse;
  */
 abstract class CpanelTestCase extends TestCase {
 
+  protected const COMMIT_A = 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678';
+
+  protected const COMMIT_B = 'f00dbabe5f60718293a4b5c6d7e8f90123456789';
+
   /**
    * The requests sent to the mocked client, in order.
    *
@@ -21,12 +25,14 @@ abstract class CpanelTestCase extends TestCase {
   /**
    * Creates a mocked HTTP client.
    *
-   * @param array<string, array{body: string, status?: int}> $responses
-   *   The responses by url part, the first part found in the url is used.
+   * @param array<string, array{body?: string, sequence?: string[], status?: int}> $responses
+   *   The responses by url part, the first part found in the url is used. With
+   *   "sequence" each request gets the next body, the last one is repeated.
    */
   protected function mockClient(array $responses): MockHttpClient {
     $this->requests = [];
-    return new MockHttpClient(function (string $method, string $url, array $options) use ($responses): MockResponse {
+    $calls = [];
+    $callback = function (string $method, string $url, array $options) use ($responses, &$calls): MockResponse {
       $this->requests[] = [
         'method' => $method,
         'url' => $url,
@@ -34,11 +40,17 @@ abstract class CpanelTestCase extends TestCase {
       ];
       foreach ($responses as $urlPart => $response) {
         if (str_contains($url, $urlPart)) {
-          return new MockResponse($response['body'], ['http_code' => $response['status'] ?? 200]);
+          $call = $calls[$urlPart] ?? 0;
+          $calls[$urlPart] = $call + 1;
+          $body = isset($response['sequence'])
+            ? $response['sequence'][min($call, count($response['sequence']) - 1)]
+            : $response['body'];
+          return new MockResponse($body, ['http_code' => $response['status'] ?? 200]);
         }
       }
       return new MockResponse($this->apiError('No mocked response for ' . $url), ['http_code' => 404]);
-    });
+    };
+    return new MockHttpClient($callback);
   }
 
   /**
@@ -68,6 +80,24 @@ abstract class CpanelTestCase extends TestCase {
       'branch' => 'main',
       'deployable' => 1,
     ];
+  }
+
+  /**
+   * Returns the CPanel response of the repositories, with a HEAD commit.
+   *
+   * @param string $head
+   *   The HEAD commit.
+   * @param string|null $deployed
+   *   The last deployed commit, NULL if it was never deployed.
+   * @param array $values
+   *   Other values of the repository.
+   */
+  protected function repositories(string $head, ?string $deployed = NULL, array $values = []): string {
+    $repository = $values + ['last_update' => ['identifier' => $head]];
+    if ($deployed !== NULL) {
+      $repository['last_deployment'] = ['repository_state' => ['identifier' => $deployed]];
+    }
+    return $this->apiOk([$this->repository($repository)]);
   }
 
   /**

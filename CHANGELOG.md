@@ -8,7 +8,7 @@ Before 1.0.0, a minor version can have breaking changes.
 
 ## [Unreleased]
 
-## [0.3.0] - 2026-10-30
+## [0.3.0] - 2026-09-01
 
 ### Changed
 
@@ -39,6 +39,16 @@ Before 1.0.0, a minor version can have breaking changes.
 
 - Option `--yes` (`-y`) in `repo:pull` and `repo:deploy` to skip the
   confirmation.
+- `repo:deploy` follows the deployment task with the option `--wait`, using only
+  the CPanel API, with the options `--timeout` and `--interval`. It fails when
+  the deployment fails or is canceled, with the log file, and when it times out.
+  After a successful deployment it checks that the last deployed commit is the
+  HEAD commit.
+- Option `--if-changed` in `repo:deploy` to skip the deployment when the HEAD
+  commit is the last deployed commit.
+- `repo:pull` and `repo:deploy` print the HEAD commit and the last deployed
+  commit. `repo:pull` prints if the HEAD commit changed, and if it is not
+  deployed yet. `repo:deploy` prints the deployment id and the log file.
 - `repo:deploy` stops with an error when the repository is not deployable.
 - `repo:list` exits with an error when the repository in `--repo` is not found.
 - Unit tests with PHPUnit, and the tests in the GitHub Actions workflow for PHP

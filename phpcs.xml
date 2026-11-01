@@ -110,6 +110,7 @@
     <rule ref="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter">
         <exclude-pattern>src/Traits/*Trait.php</exclude-pattern>
         <exclude-pattern>src/Abstract*Command.php</exclude-pattern>
+        <exclude-pattern>src/Command/Repo*Command.php</exclude-pattern>
     </rule>
     <rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"/>
 

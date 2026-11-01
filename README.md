@@ -283,6 +283,20 @@ $ php vendor/bin/phpcp repo:pull my-site --yes
 The exit code is `0` on success and `1` when the repository is not found or the
 confirmation is declined, so it can be used in pipelines.
 
+Before asking for the confirmation, the command prints the HEAD commit of the
+repository and the last deployed commit. After the update it prints if the HEAD
+commit changed, and if it is not deployed yet.
+
+```text
+Using repo my-site with repository root /home/user/repositories/my-site
+HEAD commit: a1b2c3d, last deployed commit: a1b2c3d
+Updated deploy from the commit a1b2c3d to f00dbab.
+The HEAD commit is not deployed yet, the last deployed commit is a1b2c3d.
+```
+
+When the repository has no new commits, the message is
+`Already up to date, deploy is at the commit a1b2c3d.`
+
 ### Command `repo:deploy`
 
 Perform the action to deploy a repository in the CPanel interface
@@ -306,6 +320,48 @@ confirmation is declined.
 
 ```shell
 $ php vendor/bin/phpcp repo:deploy my-site --yes
+```
+
+The deployment is a task in the CPanel queue, the command only adds it and
+prints the deployment id and the log file, it does not wait for the result.
+
+#### Wait for the deployment
+
+With the option `--wait` the command follows the deployment task until it
+finishes. It prints each state (`queued`, `running`, `succeeded`) and exits with
+`0` when it succeeds, or with `1` when the deployment fails, is canceled or does
+not finish in the timeout. The error shows the deployment log file.
+
+```shell
+$ php vendor/bin/phpcp repo:deploy my-site --yes --wait
+```
+
+| Option       | Default | Description                                      |
+|--------------|---------|--------------------------------------------------|
+| `--wait`     |         | Wait until the deployment finishes.              |
+| `--timeout`  | `300`   | The seconds to wait before failing.              |
+| `--interval` | `3`     | The seconds between each check of the deployment |
+
+When the deployment succeeds, the command checks that the last deployed commit
+is the HEAD commit. A different commit is a warning, not a failure, because the
+HEAD commit can be changed after the deployment, i.e: by another pull.
+
+The options are validated before sending anything to CPanel.
+
+#### Deploy only when there is something new
+
+The HEAD commit changes with `repo:pull`, and the last deployed commit changes
+when a deployment finishes. With the option `--if-changed` the deployment is
+skipped, with exit code `0`, when both commits are the same. A repository that
+was never deployed is always deployed.
+
+```shell
+$ php vendor/bin/phpcp repo:deploy my-site --yes --wait --if-changed
+```
+
+```text
+HEAD commit: a1b2c3d, last deployed commit: a1b2c3d
+Nothing to deploy, the HEAD commit a1b2c3d is already deployed.
 ```
 
 ### Command `file:download`
@@ -373,9 +429,8 @@ jobs:
           # Fail early if the repository does not exist.
           php vendor/bin/phpcp repo:list --repo my-site --no-interaction
           php vendor/bin/phpcp repo:pull my-site --yes
-          # Give CPanel time to update the repository before deploying.
-          sleep 10
-          php vendor/bin/phpcp repo:deploy my-site --yes
+          # Fails the step if the deployment fails or does not finish.
+          php vendor/bin/phpcp repo:deploy my-site --yes --wait
 ```
 
 The same commands work in any CI, the commands only need PHP, composer and the
@@ -389,6 +444,11 @@ Notes:
   value in a command line can be visible in the process list of the runner.
 - `repo:pull` and `repo:deploy` exit with `1` when the repository is not found,
   and `repo:deploy` also when it is not deployable, the pipeline step fails.
+  With `--wait`, `repo:deploy` also exits with `1` when the deployment fails.
+- The output of `repo:pull` shows the HEAD commit before and after the update,
+  and `repo:deploy --wait` prints the commit that was deployed. Add the option
+  `--if-changed` to `repo:deploy` to skip the deployment when the HEAD commit is
+  already deployed.
 - Use `--yes` or `--no-interaction` to avoid the confirmation question, which
   would wait forever in a pipeline.
 
@@ -401,6 +461,8 @@ Notes:
 | `Missing configuration key(s): phpcp.cpanel.user`          | `PHPCP_CPANEL_USER` is not set. This key is new in 0.3.0.                                                  |
 | `Could not find repository`                                | The argument is the repository name shown by `repo:list`, not the branch name.                             |
 | `The repository ... is not deployable`                     | Add a `.cpanel.yml` file to the repository root and make sure the working tree is clean, then pull again.  |
+| `The deployment N failed. Check the log file: ...`          | The deployment task failed, read the log file shown in the message, it is the output of the `.cpanel.yml` tasks. |
+| `Timeout after N seconds, the deployment N is still ...`    | The deployment did not finish in `--timeout`, increase it if the `.cpanel.yml` tasks are slow.            |
 
 ## Local development
 
